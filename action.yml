@@ -50,6 +50,7 @@ runs:
       shell: bash
       env:
         PR_NUMBER: "${{ inputs.number }}"
+        GITHUB_TOKEN: "${{ github.token }}"
         JEV_API_KEY: "${{ env.JEV_API_KEY }}"
         JEV_MODEL: "${{ inputs.model }}"
         JEV_ENDPOINT: "${{ inputs.endpoint }}"
