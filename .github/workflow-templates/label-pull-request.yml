@@ -28,51 +28,10 @@ jobs:
     name: "Label pull request"
     runs-on: "ubuntu-latest"
 
-    outputs:
-      labels: "${{ steps.suggest.outputs.labels }}"
-      advisory: "${{ steps.suggest.outputs.advisory }}"
-
     steps:
-      # Install the label classifier straight from its repository, pinned to
-      # the commit under test. Bump the pin deliberately when upgrading.
-      - name: "Install the label classifier"
-        run: |
-          mkdir -p "${RUNNER_TEMP}/labeler"
-          cd "${RUNNER_TEMP}/labeler"
-          printf '{"repositories":[{"type":"vcs","url":"https://github.com/paulinevos/label-classifier"}],"require":{"vos/label-classifier":"^1.0.0"}}\n' > composer.json
-          composer install --no-interaction --no-progress
-
-      # The command only suggests labels; this workflow decides what happens
-      # with the suggestion.
-      - id: "suggest"
-        name: "Suggest labels"
+      - name: "Suggest and apply labels"
+        uses: "paulinevos/label-classifier@v1"
+        with:
+          number: "${{ inputs.number }}"
         env:
-          PR_OPTION: "${{ inputs.number && format('--pr={0}', inputs.number) || '' }}"
-          JEV_API_KEY: ${{ secrets.JEV_API_KEY }}
-        run: php "${RUNNER_TEMP}/labeler/vendor/bin/label-pull-request" "$PR_OPTION"
-
-      # Adding labels only: labels already on the pull request are preserved,
-      # and nothing is removed.
-      - name: "Apply suggested labels"
-        if: "steps.suggest.outputs.labels != ''"
-        env:
-          GH_TOKEN: ${{ github.token }}
-          NUMBER: ${{ github.event.pull_request.number || inputs.number }}
-          LABELS: ${{ steps.suggest.outputs.labels }}
-        run: |
-          echo "$LABELS" | tr ',' '\n' | while read -r label; do
-            [ -n "$label" ] && gh pr edit "$NUMBER" --repo "${{ github.repository }}" --add-label "$label"
-          done
-
-      # Tell people what happened to their pull request, once.
-      - name: "Comment about the automatic labels"
-        if: "steps.suggest.outputs.labels != ''"
-        env:
-          GH_TOKEN: ${{ github.token }}
-          NUMBER: ${{ github.event.pull_request.number || inputs.number }}
-          LABELS: ${{ steps.suggest.outputs.labels }}
-        run: |
-          if gh pr view "$NUMBER" --repo "${{ github.repository }}" --json comments --jq '.comments[].body' | grep -q 'label-classifier'; then
-            exit 0
-          fi
-          gh pr comment "$NUMBER" --repo "${{ github.repository }}" --body "<!-- label-classifier -->Applied the labels \`${LABELS}\` automatically. They were suggested by an AI classifier from the pull request content and have not been reviewed by a human — please check that they are correct and remove any that do not fit."
+          JEV_API_KEY: "${{ secrets.JEV_API_KEY }}"

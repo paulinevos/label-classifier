@@ -60,8 +60,7 @@ outputs `labels` and `advisory`. Pass `model` or `endpoint` to override the
 defaults (`jev-1.13`, the Typesafe endpoint). The manual `workflow_dispatch`
 trigger exists because `pull_request: opened` runs the workflow from the base
 branch: the automatic trigger only goes live once the workflow is merged,
-while a manual run with a pull request number works immediately. The same
-workflow ships as a workflow template in this repository's
+while a manual run with a pull request number works immediately. The same workflow ships as a workflow template in this repository's
 `.github/workflow-templates/`.
 
 What the consuming repository needs:
