@@ -60,12 +60,14 @@ runs:
     - name: "Apply suggested labels"
       if: "inputs.apply == 'true' && steps.suggest.outputs.labels != ''"
       run: |
-        ARGS=()
+        NAMES=()
         while IFS= read -r label; do
           label="$(echo "$label" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
-          [ -n "$label" ] && ARGS+=(--add-label "$label")
+          [ -n "$label" ] && NAMES+=("$label")
         done < <(echo "$LABELS" | tr ',' '\n')
-        [ ${#ARGS[@]} -gt 0 ] && gh pr edit "$NUMBER" --repo "$GITHUB_REPOSITORY" "${ARGS[@]}"
+        [ ${#NAMES[@]} -gt 0 ] && gh api \
+          "repos/$GITHUB_REPOSITORY/issues/$NUMBER/labels" \
+          --method POST --input - <<< "{\"labels\": $(printf '%s\n' "${NAMES[@]}" | jq -R . | jq -s .)}"
       shell: bash
       env:
         GH_TOKEN: "${{ github.token }}"
