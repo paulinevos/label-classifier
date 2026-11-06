@@ -33,5 +33,8 @@ jobs:
         uses: "paulinevos/label-classifier@a0c2482ca244a80f04e005dc711838f76690ab74"
         with:
           number: "${{ inputs.number }}"
+          # This repository's JEV_API_KEY is an OpenCode key; the gateway
+          # differs from the Typesafe default.
+          endpoint: "https://opencode.ai/inference/systemone/v1/systemone"
         env:
           JEV_API_KEY: "${{ secrets.JEV_API_KEY }}"
