@@ -7,6 +7,25 @@ on:
   pull_request_target:
     types:
       - "opened"
+  workflow_call:
+    inputs:
+      number:
+        description: "Pull request number, for manual runs"
+        required: false
+        type: "string"
+      apply:
+        description: "Apply the suggested labels and comment"
+        required: false
+        type: "boolean"
+        default: true
+      model:
+        description: "Jev model; defaults to jev-1.13"
+        required: false
+        type: "string"
+      endpoint:
+        description: "Jev API endpoint; defaults to the Typesafe endpoint or the JEV_ENDPOINT variable"
+        required: false
+        type: "string"
   workflow_dispatch:
     inputs:
       number:
@@ -38,6 +57,8 @@ jobs:
         uses: "paulinevos/label-classifier@3cf1b9487020b3060e1a26ba42832bf60786fc95"
         with:
           number: "${{ inputs.number }}"
-          endpoint: "${{ vars.JEV_ENDPOINT }}"
+          apply: "${{ inputs.apply }}"
+          model: "${{ inputs.model }}"
+          endpoint: "${{ inputs.endpoint || vars.JEV_ENDPOINT }}"
         env:
           JEV_API_KEY: "${{ secrets.JEV_API_KEY }}"
