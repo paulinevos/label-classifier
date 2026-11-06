@@ -30,7 +30,7 @@ jobs:
 
     steps:
       - name: "Suggest and apply labels"
-        uses: "paulinevos/label-classifier@v1"
+        uses: "paulinevos/label-classifier@a0c2482ca244a80f04e005dc711838f76690ab74"
         with:
           number: "${{ inputs.number }}"
         env:
