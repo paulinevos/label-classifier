@@ -51,6 +51,7 @@ jobs:
         uses: "paulinevos/label-classifier@v1"
         with:
           number: "${{ inputs.number }}"
+          endpoint: "${{ vars.JEV_ENDPOINT }}"
         env:
           JEV_API_KEY: "${{ secrets.JEV_API_KEY }}"
 ```
